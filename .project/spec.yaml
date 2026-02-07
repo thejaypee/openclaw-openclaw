@@ -1,0 +1,38 @@
+specVersion: v2
+specMinorVersion: 2
+meta:
+    name: openclaw
+    image: project-openclaw
+    description: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 
+    labels: []
+    createdOn: "2026-02-07T16:06:12Z"
+    defaultBranch: main
+layout:
+    - path: code/
+      type: code
+      storage: git
+    - path: data/
+      type: data
+      storage: gitignore
+    - path: models/
+      type: models
+      storage: gitlfs
+    - path: data/scratch/
+      type: data
+      storage: gitignore
+environment:
+    base:
+        registry: nvcr.io
+        image: "nvidia/ai-workbench/python-basic:1.0.2"
+        name: Python Basic
+        description: A Python Base with Jupyterlab
+        os: linux
+        os_distro: ubuntu
+        os_distro_release: "22.04"
+        schema_version: v2
+execution:
+    mounts:
+        - type: project
+          target: /project/
+          description: Project directory
+          options: rw
