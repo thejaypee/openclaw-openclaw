@@ -1,11 +1,11 @@
 specVersion: v2
 specMinorVersion: 2
 meta:
-    name: openclaw
-    image: project-openclaw
-    description: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 
+    name: openclaw-test
+    image: project-openclaw-test
+    description: OpenClaw Test Project
     labels: []
-    createdOn: "2026-02-07T16:06:12Z"
+    createdOn: "2026-02-07T18:06:27Z"
     defaultBranch: main
 layout:
     - path: code/
@@ -23,16 +23,137 @@ layout:
 environment:
     base:
         registry: nvcr.io
-        image: "nvidia/ai-workbench/python-basic:1.0.2"
+        image: nvidia/ai-workbench/python-basic:1.0.2
+        build_timestamp: ""
         name: Python Basic
+        supported_architectures: []
+        cuda_version: ""
         description: A Python Base with Jupyterlab
+        entrypoint_script: ""
+        labels:
+            - ubuntu
+            - python3
+            - jupyterlab
+        apps:
+            - name: jupyterlab
+              type: jupyterlab
+              class: webapp
+              start_command: jupyter lab --allow-root --port 8888 --ip 0.0.0.0 --no-browser --NotebookApp.base_url=\$PROXY_PREFIX --NotebookApp.default_url=/lab --NotebookApp.allow_origin='*'
+              health_check_command: '[ \$(echo url=\$(jupyter lab list | head -n 2 | tail -n 1 | cut -f1 -d'' '' | grep -v ''Currently'' | sed "s@/?@/lab?@g") | curl -o /dev/null -s -w ''%{http_code}'' --config -) == ''200'' ]'
+              stop_command: jupyter lab stop 8888
+              user_msg: ""
+              logfile_path: ""
+              timeout_seconds: 60
+              icon_url: ""
+              webapp_options:
+                autolaunch: true
+                port: "8888"
+                proxy:
+                    trim_prefix: false
+                url_command: jupyter lab list | head -n 2 | tail -n 1 | cut -f1 -d' ' | grep -v 'Currently'
+        programming_languages:
+            - python3
+            - javascript
+            - typescript
+            - go
+        icon_url: ""
+        image_version: 1.0.2
         os: linux
         os_distro: ubuntu
         os_distro_release: "22.04"
         schema_version: v2
+        user_info:
+            uid: ""
+            gid: ""
+            username: ""
+        package_managers:
+            - name: apt
+              binary_path: /usr/bin/apt
+              installed_packages:
+                - build-essential
+                - curl
+                - gcc
+                - git
+                - git-lfs
+                - golang
+                - nodejs
+                - python3
+                - python3-dev
+                - python3-pip
+                - vim
+                - wget
+            - name: pip
+              binary_path: /usr/local/bin/pip
+              installed_packages:
+                - jupyterlab==4.0.7
+                - mkdocs-material
+                - mkdocs-redirects
+                - mkdocs-macros-plugin
+                - mkdocs-llmstxt
+                - mkdocs-include-markdown-plugin
+                - mkdocs-mermaid2-plugin
+                - sphinx
+                - furo
+                - myst-parser
+        package_manager_environment:
+            name: ""
+            target: ""
+    compose_file_path: ""
 execution:
+    apps:
+        - name: Main API
+          type: custom
+          class: webapp
+          start_command: cd /project && uvicorn skills.local-places.src.local_places.main:app --host 0.0.0.0 --port 8000
+          health_check_command: curl -f http://localhost:8000/docs
+          stop_command: pkill -f uvicorn
+          user_msg: ""
+          logfile_path: ""
+          timeout_seconds: 60
+          icon_url: ""
+          webapp_options:
+            autolaunch: true
+            port: "8000"
+            proxy:
+                trim_prefix: false
+            url: http://localhost:8000
+        - name: Express Server
+          type: custom
+          class: webapp
+          start_command: cd /project && pnpm start
+          health_check_command: curl -f http://localhost:3000/
+          stop_command: pkill -f node
+          user_msg: ""
+          logfile_path: ""
+          timeout_seconds: 120
+          icon_url: ""
+          webapp_options:
+            autolaunch: true
+            port: "3000"
+            proxy:
+                trim_prefix: false
+            url: http://localhost:3000
+        - name: VS Code
+          type: vs-code
+          class: native
+          start_command: ""
+          health_check_command: '[ \$(ps aux | grep ".vscode-server" | grep -v grep | wc -l ) -gt 4 ] && [ \$(ps aux | grep "/.vscode-server/bin/.*/node .* net.createConnection" | grep -v grep | wc -l) -gt 0 ]'
+          stop_command: ""
+          user_msg: ""
+          logfile_path: ""
+          timeout_seconds: 120
+          icon_url: ""
+    resources:
+        gpu:
+            requested: 0
+        sharedMemoryMB: 0
+    secrets: []
     mounts:
         - type: project
           target: /project/
           description: Project directory
           options: rw
+        - type: volume
+          target: /nvwb-shared-volume/
+          description: ""
+          options: volumeName=nvwb-shared-volume
