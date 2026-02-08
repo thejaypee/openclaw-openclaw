@@ -10,8 +10,8 @@ NODE_DIR="$HOME/.local/node"
 if [ ! -f "$NODE_DIR/bin/node" ]; then
     echo "Installing Node.js $NODE_VERSION..."
     mkdir -p "$NODE_DIR"
-    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" \
-        | tar -xJ --strip-components=1 -C "$NODE_DIR"
+    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz" \
+        | tar -xz --strip-components=1 -C "$NODE_DIR"
 fi
 
 # Add node to PATH permanently
