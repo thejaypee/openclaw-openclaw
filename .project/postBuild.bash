@@ -4,25 +4,27 @@ set -e
 
 echo "=== PostBuild ==="
 
-# Install nvm (Node Version Manager) to userspace
-export NVM_DIR="$HOME/.nvm"
-if [ ! -d "$NVM_DIR" ]; then
-    echo "Installing nvm..."
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+# Install Node.js 22 binary to userspace
+NODE_VERSION=22.13.1
+NODE_DIR="$HOME/.local/node"
+if [ ! -f "$NODE_DIR/bin/node" ]; then
+    echo "Installing Node.js $NODE_VERSION..."
+    mkdir -p "$NODE_DIR"
+    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" \
+        | tar -xJ --strip-components=1 -C "$NODE_DIR"
 fi
 
-# Load nvm
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-# Install Node.js 22
-echo "Installing Node.js 22..."
-nvm install 22
-nvm alias default 22
+# Add node to PATH permanently
+export PATH="$NODE_DIR/bin:$PATH"
+if ! grep -q "$NODE_DIR/bin" "$HOME/.bashrc" 2>/dev/null; then
+    echo "export PATH=\"$NODE_DIR/bin:\$PATH\"" >> "$HOME/.bashrc"
+fi
 
 echo "Node.js version: $(node --version)"
 echo "npm version: $(npm --version)"
 
-# Install pnpm globally
+# Install pnpm globally (to user prefix)
+npm config set prefix "$HOME/.local"
 if ! command -v pnpm &> /dev/null; then
     echo "Installing pnpm..."
     npm install -g pnpm
