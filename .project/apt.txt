@@ -3,6 +3,5 @@ curl
 git
 git-lfs
 golang
-nodejs
 python3-dev
 wget

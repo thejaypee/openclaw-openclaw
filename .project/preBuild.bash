@@ -1,7 +1,4 @@
 #!/bin/bash
-# Runs BEFORE package installation. Has passwordless sudo. CANNOT access /project/.
-# Build order: base image → preBuild → apt.txt/requirements.txt → postBuild → runtime
+# Runs BEFORE package installation. CANNOT access /project/.
 set -e
-
-echo "=== PreBuild: Adding Node.js 22.x repository ==="
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+echo "=== PreBuild: nothing to do ==="
