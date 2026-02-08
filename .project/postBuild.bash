@@ -1,10 +1,19 @@
 #!/bin/bash
 # This file runs AFTER system and language packages are installed.
-# It has passwordless sudo access but CANNOT access /project/ files.
-# System packages (apt) and Python packages (pip) are managed via spec.yaml and configpacks.
+# Has passwordless sudo access.
 set -e
 
 echo "=== PostBuild: Project Setup ==="
+
+# Install Node.js 22.x via NodeSource
+if ! command -v node &> /dev/null; then
+    echo "Installing Node.js 22.x..."
+    curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+fi
+
+echo "Node.js version: $(node --version)"
+echo "npm version: $(npm --version)"
 
 # Install pnpm globally
 if ! command -v pnpm &> /dev/null; then
